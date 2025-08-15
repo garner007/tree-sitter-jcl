@@ -38,21 +38,14 @@ binding.gyp
 coverage/
 .nyc_output/
 
-# Agent OS
-.agent-os/cache/
-.agent-os/logs/
-.agent-os/temp/
-.agent-os/state/
-.agent-os/*.log
+# Agent OS - all files should be local only
+.agent-os/
 
-# Serena
-.serena/cache/
-.serena/logs/
-.serena/temp/
-.serena/state/
-.serena/*.log
+# Serena - all files should be local only
+.serena/
 
-# Claude
+# Claude - all files should be local only
+CLAUDE.md
 CLAUDE.md.local
 .claude/
 *.claude-session
