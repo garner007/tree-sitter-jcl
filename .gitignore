@@ -41,6 +41,19 @@ coverage/
 # Agent OS
 .agent-os/cache/
 .agent-os/logs/
+.agent-os/temp/
+.agent-os/state/
+.agent-os/*.log
 
 # Serena
 .serena/cache/
+.serena/logs/
+.serena/temp/
+.serena/state/
+.serena/*.log
+
+# Claude
+CLAUDE.md.local
+.claude/
+*.claude-session
+*.claude-temp
