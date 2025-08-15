@@ -1,0 +1,46 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# Build artifacts
+build/
+*.node
+*.wasm
+target/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tree-sitter generated files
+src/parser.c
+src/tree_sitter/
+binding.gyp
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Agent OS
+.agent-os/cache/
+.agent-os/logs/
+
+# Serena
+.serena/cache/

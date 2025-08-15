@@ -1,0 +1,93 @@
+name: tree-sitter-jcl
+version: 1.0.0
+description: Tree-sitter grammar for JCL (Job Control Language) with mainframe code analysis support
+
+workflows:
+  test-driven-development:
+    description: Enforce TDD practices for grammar development
+    steps:
+      - name: write-failing-test
+        action: Create test case that defines desired behavior
+      - name: run-test
+        action: Execute test and verify failure
+      - name: implement-minimal
+        action: Write minimal grammar rule to pass test
+      - name: verify-pass
+        action: Run test and verify it passes
+      - name: refactor
+        action: Improve grammar structure while keeping tests green
+
+  grammar-development:
+    description: Develop JCL grammar rules systematically
+    steps:
+      - name: identify-jcl-construct
+        action: Identify JCL language construct to implement
+      - name: research-syntax
+        action: Research z/OS JCL documentation for syntax rules
+      - name: create-test-cases
+        action: Create comprehensive test cases for the construct
+      - name: implement-rule
+        action: Implement grammar rule following TDD
+      - name: test-integration
+        action: Test with other grammar rules
+
+  query-pattern-development:
+    description: Develop tree-sitter query patterns for code analysis
+    steps:
+      - name: identify-pattern
+        action: Identify JCL pattern to query (files, modules, dependencies)
+      - name: write-query
+        action: Write tree-sitter query pattern
+      - name: test-query
+        action: Test query against sample JCL files
+      - name: document-usage
+        action: Document query pattern and usage
+
+commands:
+  test:
+    description: Run grammar tests
+    script: npm test
+  
+  build:
+    description: Build tree-sitter grammar
+    script: npm run build
+  
+  parse:
+    description: Parse a JCL file
+    script: npx tree-sitter parse
+  
+  query:
+    description: Run query patterns
+    script: npx tree-sitter query
+
+environments:
+  development:
+    node_version: ">=16.0.0"
+    dependencies:
+      - tree-sitter-cli
+      - mocha
+      - chai
+    
+  python-integration:
+    python_version: ">=3.8"
+    dependencies:
+      - tree-sitter
+      - pytest
+
+analysis:
+  jcl_constructs:
+    - job_statements
+    - exec_statements
+    - dd_statements
+    - proc_definitions
+    - include_statements
+    - if_then_else
+    - set_statements
+    - jcllib_statements
+  
+  tracking_targets:
+    - dataset_names
+    - program_names
+    - procedure_names
+    - job_dependencies
+    - file_operations
