@@ -127,7 +127,3 @@ npm run lint               # Lint code
 2. Test with real mainframe JCL examples
 3. Update query patterns for new constructs
 4. Document complex grammar decisions
-
-## License
-
-MIT License - see LICENSE file for details.
