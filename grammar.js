@@ -5,6 +5,10 @@ module.exports = grammar({
     /\s/,
   ],
 
+  conflicts: $ => [
+    [$.job_statement]
+  ],
+
   rules: {
     source_file: $ => repeat($._statement),
 
@@ -23,14 +27,13 @@ module.exports = grammar({
       $.jcllib_statement
     ),
 
-    // JOB Statement
+    // JOB Statement  
     job_statement: $ => seq(
       $.label,
       'JOB',
-      optional(choice(
-        $.accounting_info,
-        $.parameter_list
-      ))
+      optional($.quoted_string),
+      repeat(seq(',', $.parameter)),
+      optional(seq(',', repeat($.continuation_line)))
     ),
 
     // EXEC Statement
@@ -162,34 +165,44 @@ module.exports = grammar({
     parameter: $ => choice(
       // Keyword=value parameter
       seq($.keyword, '=', $.parameter_value),
+      seq($.keyword, '=', $.symbolic_parameter),
+      seq($.keyword, '=', $.subparameter_list),
       // Positional parameter
-      $.parameter_value
+      $.parameter_value,
+      $.symbolic_parameter
     ),
 
     keyword: $ => /[A-Z]+/,
 
     parameter_value: $ => choice(
       $.simple_value,
-      $.quoted_string,
-      $.subparameter_list
+      $.quoted_string
     ),
 
-    simple_value: $ => /[A-Z0-9#@$&*]+/,
+    simple_value: $ => /[A-Z0-9#@$*]+/,
 
     quoted_string: $ => /\'[^\']*\'/,
 
+    symbolic_parameter: $ => /&[A-Z][A-Z0-9]*/,
+
     subparameter_list: $ => seq(
       '(',
-      $.subparameter,
-      repeat(seq(',', $.subparameter)),
+      optional(seq(
+        $._subparameter_item,
+        repeat(seq(',', $._subparameter_item))
+      )),
       ')'
     ),
 
-    subparameter: $ => choice(
+    _subparameter_item: $ => choice(
+      /\d+/,  // Direct number pattern
       $.simple_value,
       $.quoted_string,
-      seq($.keyword, '=', $.simple_value)
+      seq($.keyword, '=', choice($.simple_value, /\d+/)),
+      $.subparameter_list  // Nested lists like SPACE=(CYL,(1,1),RLSE)
     ),
+
+    subparameter: $ => $._subparameter_item,
 
     // Inline data
     inline_data: $ => seq(
@@ -236,11 +249,13 @@ module.exports = grammar({
     ),
 
     // Continuation handling
-    continuation: $ => seq(
-      /\n/,
+    continuation_line: $ => seq(
       '//',
-      repeat(' '),
-      $.parameter
+      /\s+/,
+      repeat1(choice(
+        $.parameter,
+        seq(',', $.parameter)
+      ))
     ),
   }
 });
