@@ -62,3 +62,171 @@ Comment line
 
 (source_file
   (comment))
+
+================================================================================
+GDG Dataset with positive generation
+================================================================================
+
+//DD1      DD DSN=PROD.BACKUP(+1),DISP=NEW
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (dataset_name
+        (gdg_dataset)))
+    (parameter
+      (keyword)
+      (parameter_value))))
+
+================================================================================
+GDG Dataset with zero generation
+================================================================================
+
+//DD2      DD DSN=DATA.ARCHIVE(0),DISP=SHR
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (dataset_name
+        (gdg_dataset)))
+    (parameter
+      (keyword)
+      (parameter_value))))
+
+================================================================================
+GDG Dataset with negative generation
+================================================================================
+
+//DD3      DD DSN=BACKUP.FILES(-2),DISP=OLD
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (dataset_name
+        (gdg_dataset)))
+    (parameter
+      (keyword)
+      (parameter_value))))
+
+================================================================================
+Complex DISP parameter with three values
+================================================================================
+
+//DD4      DD DSN=TEST.FILE,DISP=(NEW,CATLG,DELETE)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (keyword)
+      (dataset_name))
+    (parameter
+      (keyword)
+      (subparameter_list
+        (subparameter)
+        (subparameter)
+        (subparameter)))))
+
+================================================================================
+Complex SPACE parameter with nested lists
+================================================================================
+
+//DD5      DD DSN=DATA.SET,SPACE=(CYL,(10,5),RLSE)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (keyword)
+      (dataset_name))
+    (parameter
+      (keyword)
+      (subparameter_list
+        (subparameter)
+        (subparameter_list
+          (subparameter)
+          (subparameter))
+        (subparameter)))))
+
+================================================================================
+Complex DCB parameter with keyword=value pairs
+================================================================================
+
+//DD6      DD DSN=RECORD.FILE,DCB=(RECFM=FB,LRECL=80,BLKSIZE=800)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (keyword)
+      (dataset_name))
+    (parameter
+      (keyword)
+      (subparameter_list
+        (subparameter
+          (keyword)
+          (parameter_value))
+        (subparameter
+          (keyword)
+          (parameter_value))
+        (subparameter
+          (keyword)
+          (parameter_value))))))
+
+================================================================================
+Referback dataset support
+================================================================================
+
+//DD7      DD DSN=*.STEP1.DD1,DISP=SHR
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (dataset_name))
+    (parameter
+      (keyword)
+      (parameter_value))))
+
+================================================================================
+Dataset with member reference
+================================================================================
+
+//DD8      DD DSN=SYS1.PROCLIB(MYPROC),DISP=SHR
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (dd_statement
+    (label
+      (name))
+    (parameter
+      (dataset_name
+        (member_name)))
+    (parameter
+      (keyword)
+      (parameter_value))))

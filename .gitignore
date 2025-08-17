@@ -50,3 +50,9 @@ CLAUDE.md.local
 .claude/
 *.claude-session
 *.claude-temp
+
+# Generated output files
+ast_output/
+jcl_extraction_results.json
+jcl_extraction_summary.csv
+*.ast

@@ -29,6 +29,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "proc_definition"
+        },
+        {
+          "type": "SYMBOL",
           "name": "proc_statement"
         },
         {
@@ -173,16 +177,20 @@
           ]
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "parameter_list"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "SYMBOL",
+                "name": "parameter"
+              }
+            ]
+          }
         }
       ]
     },
@@ -208,26 +216,59 @@
                   "value": "DUMMY"
                 },
                 {
-                  "type": "STRING",
-                  "value": "*"
+                  "type": "SYMBOL",
+                  "name": "inline_data"
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "parameter_list"
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "parameter"
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "STRING",
+                            "value": ","
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "parameter"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "STRING",
+                              "value": ","
+                            },
+                            {
+                              "type": "REPEAT",
+                              "content": {
+                                "type": "SYMBOL",
+                                "name": "continuation_line"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "BLANK"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "inline_data"
             },
             {
               "type": "BLANK"
@@ -251,8 +292,29 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SYMBOL",
-              "name": "parameter_list"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "parameter"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "STRING",
+                        "value": ","
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "parameter"
+                      }
+                    ]
+                  }
+                }
+              ]
             },
             {
               "type": "BLANK"
@@ -271,6 +333,59 @@
         {
           "type": "STRING",
           "value": "PEND"
+        }
+      ]
+    },
+    "proc_definition": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "proc_statement"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "exec_statement"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "dd_statement"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "set_statement"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "include_statement"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "if_statement"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "else_statement"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "endif_statement"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "comment"
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pend_statement"
         }
       ]
     },
@@ -388,8 +503,16 @@
           "value": "//"
         },
         {
-          "type": "SYMBOL",
-          "name": "name"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "name"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -438,12 +561,46 @@
           ]
         },
         {
+          "type": "SYMBOL",
+          "name": "gdg_dataset"
+        },
+        {
           "type": "PATTERN",
           "value": "&&[A-Z][A-Z0-9]*"
         },
         {
           "type": "PATTERN",
           "value": "\\*\\.[A-Z][A-Z0-9]*(\\.[A-Z][A-Z0-9]*)*"
+        }
+      ]
+    },
+    "gdg_dataset": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "PATTERN",
+          "value": "[A-Z][A-Z0-9]*(\\.[A-Z][A-Z0-9]*)*"
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "[+-]?\\d+"
+            },
+            {
+              "type": "STRING",
+              "value": "GDG"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": ")"
         }
       ]
     },
@@ -526,6 +683,23 @@
             },
             {
               "type": "SYMBOL",
+              "name": "quoted_string"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "keyword"
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "SYMBOL",
               "name": "parameter_value"
             }
           ]
@@ -565,6 +739,50 @@
           ]
         },
         {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "STRING",
+                "value": "DSN"
+              },
+              "named": false,
+              "value": "keyword"
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "SYMBOL",
+              "name": "dataset_name"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "STRING",
+                "value": "SYSOUT"
+              },
+              "named": false,
+              "value": "keyword"
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "SYMBOL",
+              "name": "sysout_value"
+            }
+          ]
+        },
+        {
           "type": "SYMBOL",
           "name": "parameter_value"
         },
@@ -574,22 +792,17 @@
         }
       ]
     },
+    "sysout_value": {
+      "type": "STRING",
+      "value": "*"
+    },
     "keyword": {
       "type": "PATTERN",
       "value": "[A-Z]+"
     },
     "parameter_value": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "simple_value"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "quoted_string"
-        }
-      ]
+      "type": "PATTERN",
+      "value": "[A-Z0-9#@$*]+"
     },
     "simple_value": {
       "type": "PATTERN",
@@ -618,7 +831,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "_subparameter_item"
+                  "name": "subparameter"
                 },
                 {
                   "type": "REPEAT",
@@ -631,7 +844,7 @@
                       },
                       {
                         "type": "SYMBOL",
-                        "name": "_subparameter_item"
+                        "name": "subparameter"
                       }
                     ]
                   }
@@ -697,28 +910,59 @@
       ]
     },
     "subparameter": {
-      "type": "SYMBOL",
-      "name": "_subparameter_item"
-    },
-    "inline_data": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
           "type": "PATTERN",
-          "value": "\\n"
+          "value": "\\d+"
         },
         {
-          "type": "REPEAT",
-          "content": {
-            "type": "PATTERN",
-            "value": "[^\\n]+\\n"
-          }
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "PATTERN",
+              "value": "[A-Z]+"
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "PATTERN",
+                  "value": "[A-Z0-9#@$*]+"
+                },
+                {
+                  "type": "PATTERN",
+                  "value": "\\d+"
+                }
+              ]
+            }
+          ]
         },
         {
-          "type": "STRING",
-          "value": "/*"
+          "type": "PATTERN",
+          "value": "[A-Z][A-Z0-9#@$*]*"
+        },
+        {
+          "type": "PATTERN",
+          "value": "\\'[^\\']*\\'"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "subparameter_list"
         }
       ]
+    },
+    "inline_data": {
+      "type": "STRING",
+      "value": "*"
+    },
+    "inline_delimiter": {
+      "type": "STRING",
+      "value": "/*"
     },
     "condition": {
       "type": "CHOICE",
@@ -902,23 +1146,32 @@
       ]
     },
     "symbol_name": {
-      "type": "PATTERN",
-      "value": "&[A-Z][A-Z0-9]*"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "PATTERN",
+          "value": "&[A-Z][A-Z0-9]*"
+        },
+        {
+          "type": "PATTERN",
+          "value": "[A-Z][A-Z0-9]*"
+        }
+      ]
     },
     "symbol_value": {
       "type": "CHOICE",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "quoted_string"
+          "type": "PATTERN",
+          "value": "\\'[^\\']*\\'"
         },
         {
-          "type": "SYMBOL",
-          "name": "simple_value"
+          "type": "PATTERN",
+          "value": "[A-Z0-9#@$*]+"
         },
         {
-          "type": "SYMBOL",
-          "name": "symbol_name"
+          "type": "PATTERN",
+          "value": "&[A-Z][A-Z0-9]*"
         }
       ]
     },
@@ -1012,6 +1265,28 @@
   "conflicts": [
     [
       "job_statement"
+    ],
+    [
+      "dd_statement"
+    ],
+    [
+      "parameter_value",
+      "quoted_string"
+    ],
+    [
+      "parameter_value",
+      "dataset_name"
+    ],
+    [
+      "_statement",
+      "proc_definition"
+    ],
+    [
+      "inline_data"
+    ],
+    [
+      "subparameter",
+      "keyword"
     ]
   ],
   "precedences": [],

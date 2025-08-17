@@ -6,7 +6,13 @@ module.exports = grammar({
   ],
 
   conflicts: $ => [
-    [$.job_statement]
+    [$.job_statement],
+    [$.dd_statement],
+    [$.parameter_value, $.quoted_string],
+    [$.parameter_value, $.dataset_name],
+    [$._statement, $.proc_definition],
+    [$.inline_data],
+    [$.subparameter, $.keyword]
   ],
 
   rules: {
@@ -17,6 +23,7 @@ module.exports = grammar({
       $.exec_statement,
       $.dd_statement,
       $.comment,
+      $.proc_definition,
       $.proc_statement,
       $.pend_statement,
       $.if_statement,
@@ -45,7 +52,7 @@ module.exports = grammar({
         seq('PROC=', $.proc_name),
         $.proc_name
       ),
-      optional($.parameter_list)
+      repeat(seq(',', $.parameter))
     ),
 
     // DD Statement
@@ -54,23 +61,45 @@ module.exports = grammar({
       'DD',
       optional(choice(
         'DUMMY',
-        '*',  // Inline data
-        $.parameter_list
-      )),
-      optional($.inline_data)
+        $.inline_data,  // Combined inline data
+        seq(
+          $.parameter,
+          repeat(seq(',', $.parameter)),
+          optional(seq(',', repeat($.continuation_line)))
+        )
+      ))
     ),
 
-    // PROC Statement
+    // PROC Statement  
     proc_statement: $ => seq(
       $.label,
       'PROC',
-      optional($.parameter_list)
+      optional(seq(
+        $.parameter,
+        repeat(seq(',', $.parameter))
+      ))
     ),
 
     // PEND Statement
     pend_statement: $ => seq(
       $.label,
       'PEND'
+    ),
+
+    // PROC Definition (PROC...PEND block)
+    proc_definition: $ => seq(
+      $.proc_statement,
+      repeat(choice(
+        $.exec_statement,
+        $.dd_statement,
+        $.set_statement,
+        $.include_statement,
+        $.if_statement,
+        $.else_statement,
+        $.endif_statement,
+        $.comment
+      )),
+      $.pend_statement
     ),
 
     // IF Statement
@@ -121,7 +150,7 @@ module.exports = grammar({
     // Label (job name, step name, DD name, etc.)
     label: $ => seq(
       '//',
-      $.name
+      optional($.name)
     ),
 
     // Basic identifiers
@@ -143,10 +172,23 @@ module.exports = grammar({
         $.member_name,
         ')'
       ),
+      // GDG dataset
+      $.gdg_dataset,
       // Temporary dataset
       /&&[A-Z][A-Z0-9]*/,
       // Referback
       /\*\.[A-Z][A-Z0-9]*(\.[A-Z][A-Z0-9]*)*/
+    ),
+
+    // GDG Dataset Support - Generation Data Group notation
+    gdg_dataset: $ => seq(
+      /[A-Z][A-Z0-9]*(\.[A-Z][A-Z0-9]*)*/,
+      '(',
+      choice(
+        /[+-]?\d+/,  // (+1), (0), (-1), etc.
+        'GDG'        // Special GDG keyword
+      ),
+      ')'
     ),
 
     // Parameters
@@ -163,21 +205,25 @@ module.exports = grammar({
     ),
 
     parameter: $ => choice(
-      // Keyword=value parameter
+      // Keyword=value parameter - prioritize quoted_string first
+      seq($.keyword, '=', $.quoted_string),
       seq($.keyword, '=', $.parameter_value),
       seq($.keyword, '=', $.symbolic_parameter),
       seq($.keyword, '=', $.subparameter_list),
+      // Special case for DSN dataset references
+      seq(alias('DSN', 'keyword'), '=', $.dataset_name),
+      // Special case for SYSOUT=*
+      seq(alias('SYSOUT', 'keyword'), '=', $.sysout_value),
       // Positional parameter
       $.parameter_value,
       $.symbolic_parameter
     ),
 
+    sysout_value: $ => '*',
+
     keyword: $ => /[A-Z]+/,
 
-    parameter_value: $ => choice(
-      $.simple_value,
-      $.quoted_string
-    ),
+    parameter_value: $ => /[A-Z0-9#@$*]+/,
 
     simple_value: $ => /[A-Z0-9#@$*]+/,
 
@@ -188,8 +234,8 @@ module.exports = grammar({
     subparameter_list: $ => seq(
       '(',
       optional(seq(
-        $._subparameter_item,
-        repeat(seq(',', $._subparameter_item))
+        $.subparameter,
+        repeat(seq(',', $.subparameter))
       )),
       ')'
     ),
@@ -202,14 +248,23 @@ module.exports = grammar({
       $.subparameter_list  // Nested lists like SPACE=(CYL,(1,1),RLSE)
     ),
 
-    subparameter: $ => $._subparameter_item,
-
-    // Inline data
-    inline_data: $ => seq(
-      /\n/,
-      repeat(/[^\n]+\n/),
-      '/*'
+    subparameter: $ => choice(
+      // Numbers
+      /\d+/,
+      // Keyword=value pairs (like RECFM=FB, LRECL=80) - must come before simple identifiers
+      seq(/[A-Z]+/, '=', choice(/[A-Z0-9#@$*]+/, /\d+/)),
+      // Simple identifiers (like NEW, CATLG, DELETE, CYL, RLSE)
+      /[A-Z][A-Z0-9#@$*]*/,
+      // Quoted strings
+      /\'[^\']*\'/,
+      // Nested parameter lists like (10,5)
+      $.subparameter_list
     ),
+
+    // Inline data marker (simplified)
+    inline_data: $ => '*',
+    
+    inline_delimiter: $ => '/*',
 
     // Conditions for IF statements
     condition: $ => choice(
@@ -234,12 +289,15 @@ module.exports = grammar({
       $.symbol_value
     ),
 
-    symbol_name: $ => /&[A-Z][A-Z0-9]*/,
+    symbol_name: $ => choice(
+      /&[A-Z][A-Z0-9]*/,  // Symbol reference
+      /[A-Z][A-Z0-9]*/    // Symbol definition in SET
+    ),
 
     symbol_value: $ => choice(
-      $.quoted_string,
-      $.simple_value,
-      $.symbol_name
+      /\'[^\']*\'/,        // Direct quoted string pattern
+      /[A-Z0-9#@$*]+/,    // Direct simple value pattern  
+      /&[A-Z][A-Z0-9]*/   // Direct symbol reference pattern
     ),
 
     // Library list for JCLLIB
